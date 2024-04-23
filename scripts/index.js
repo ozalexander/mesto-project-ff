@@ -6,8 +6,8 @@ initialCards.forEach((card) => {
   const deleteButton = cardsElement.querySelector('.card__delete-button');
 
   cardsElement.querySelector('.card__title').textContent = card.name;
-  cardsElement.querySelector('.card__image').alt = 'Фотография';
   cardsElement.querySelector('.card__image').src = card.link;
+  cardsElement.querySelector('.card__image').alt = 'Фотография';
 
   deleteButton.addEventListener('click', evt => evt.target.parentElement.style.display='none');
 
