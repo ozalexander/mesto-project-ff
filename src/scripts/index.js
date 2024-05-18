@@ -13,8 +13,8 @@ const popupCaption = document.querySelector('.popup__caption');
 const placeName = document.querySelector('.popup__input_type_card-name');
 const placeLink = document.querySelector('.popup__input_type_url');
 const placesList = document.querySelector('.places__list');
-const editProfile = document.querySelector('.profile__edit-button');
-const editProfilePopup = document.querySelector('.popup_type_edit');
+const buttonEditProfile = document.querySelector('.profile__edit-button');
+const buttonOpenPopupProfile = document.querySelector('.popup_type_edit');
 const name = document.querySelector('.profile__title');
 const job = document.querySelector('.profile__description');
 const nameInput = document.querySelector('.popup__input_type_name');
@@ -35,8 +35,8 @@ initialCards.forEach(card => placesList.append(creatCard(card, { deleteCard : de
 formElement[nameJob].addEventListener('submit', handleFormSubmit);
 formElement[addPlace].addEventListener('submit', handleFormSubmit);
 
-editProfile.addEventListener('click', (function(evt) {
-  editProfilePopup.classList.add('popup_is-opened');
+buttonEditProfile.addEventListener('click', (function(evt) {
+  buttonOpenPopupProfile.classList.add('popup_is-opened');
   closePopup(nameJob);
 }));
 

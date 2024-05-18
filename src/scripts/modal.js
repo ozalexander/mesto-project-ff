@@ -32,9 +32,10 @@ function closeWithEsc(popupType) {
   document.removeEventListener('keydown', keyDown);
 }))}
 
-function zoomPicture(evt) {
+function zoomPicture(card) {
   popup[zoomImg].classList.add('popup_is-opened');
-  popupImage.src = evt.target.closest('.card__image').src;
-  popupCaption.textContent = evt.target.closest('.card__image').alt;
+  popupImage.src = card.src;
+  popupImage.alt = card.alt;
+  popupCaption.textContent = card.alt;
   closePopup(zoomImg);
 }
