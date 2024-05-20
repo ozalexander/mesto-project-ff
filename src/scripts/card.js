@@ -16,10 +16,6 @@ function creatCard(item, { deleteCard, zoomCard, like }) {
   return cardsElement;
 }
 
-function deleteThisCard(card) {
-  card.remove();
-}
+const deleteThisCard = (card) => card.remove();
 
-function cardLike(card) {
-  card.classList.toggle('card__like-button_is-active');
-}
+const cardLike = (card) => card.classList.toggle('card__like-button_is-active');

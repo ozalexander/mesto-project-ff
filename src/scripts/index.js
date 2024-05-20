@@ -1,46 +1,75 @@
 import '../pages/index.css';
 import { initialCards } from '../scripts/cards.js';
 import { creatCard, deleteThisCard, cardLike } from './card.js';
-import { handleFormSubmit, closePopup, zoomPicture } from './modal.js';
-export { popup, popupClose, popupContent, popupImage, popupCaption, placeName, placeLink, nameJob, job, addPlace, name, jobInput, zoomImg, nameInput, placesList, formElement }
+import { openPopup, closePopup } from './modal.js';
 
 const popup = document.querySelectorAll('.popup');
-const popupClose = document.querySelectorAll('.popup__close');
+const buttonClose = document.querySelectorAll('.popup__close');
 const popupContent = document.querySelectorAll('.popup__content');
 const formElement = document.querySelectorAll('.popup__form');
 const popupImage = document.querySelector('.popup__image');
 const popupCaption = document.querySelector('.popup__caption');
-const placeName = document.querySelector('.popup__input_type_card-name');
-const placeLink = document.querySelector('.popup__input_type_url');
+const placeInputName = document.querySelector('.popup__input_type_card-name');
+const placeInputLink = document.querySelector('.popup__input_type_url');
 const placesList = document.querySelector('.places__list');
 const buttonEditProfile = document.querySelector('.profile__edit-button');
-const buttonOpenPopupProfile = document.querySelector('.popup_type_edit');
-const name = document.querySelector('.profile__title');
-const job = document.querySelector('.profile__description');
+const defaultName = document.querySelector('.profile__title');
+const defaultjob = document.querySelector('.profile__description');
 const nameInput = document.querySelector('.popup__input_type_name');
 const jobInput = document.querySelector('.popup__input_type_description');
 const newCardBtn = document.querySelector('.profile__add-button');
-const newCard = document.querySelector('.popup_type_new-card');
-const nameJob = 0, addPlace = 1, zoomImg = 2;
+const popupOpened = 'popup_is-opened';
+const formEditProfile = 0, formAddCard = 1, imgZoom = 2;
+const listOfFunctions = { deleteCard : deleteThisCard, zoomCard : zoomPicture, like : cardLike };
+const openPopupShort = (typeOfForm) => openPopup(popup[typeOfForm], popupOpened);
+const closePopupShort = (typeOfForm) => closePopup(popup[typeOfForm], popupOpened);
 
-for (let i = 0; i < popup.length; i++) {
-  popup[i].classList.add('popup_is-animated');
+initialCards.forEach(card => placesList.append(creatCard(card, listOfFunctions)));
+
+for (let i = 0; i < popup.length; i++) { popup[i].classList.add('popup_is-animated') }
+
+nameInput.value = defaultName.textContent;
+jobInput.value = defaultjob.textContent;
+
+buttonEditProfile.addEventListener('click', (() => {openPopupShort(formEditProfile), nameInput.focus();}));
+newCardBtn.addEventListener('click', (() => {openPopupShort(formAddCard), placeInputName.focus()}));
+
+function handleEditFormSubmit(evt) {
+  evt.preventDefault();
+  defaultName.textContent = nameInput.value;
+  defaultjob.textContent = jobInput.value;
+  closePopupShort(formEditProfile);
 }
 
-nameInput.value = name.textContent;
-jobInput.value = job.textContent;
+formElement[formEditProfile].addEventListener('submit', (evt) => handleEditFormSubmit(evt));
 
-initialCards.forEach(card => placesList.append(creatCard(card, { deleteCard : deleteThisCard, zoomCard : zoomPicture, like : cardLike })));
+function reset() {
+  placeInputName.value = '';
+  placeInputLink.value = '';
+}
 
-formElement[nameJob].addEventListener('submit', handleFormSubmit);
-formElement[addPlace].addEventListener('submit', handleFormSubmit);
+function handleAddFormSubmit(evt) {
+  evt.preventDefault();
+  initialCards.unshift({name: placeInputName.value, link: placeInputLink.value});
+  placesList.insertBefore(creatCard(initialCards[0], listOfFunctions), placesList.firstChild);
+  closePopupShort(formAddCard);
+  setTimeout(reset, 600);
+}
 
-buttonEditProfile.addEventListener('click', (function(evt) {
-  buttonOpenPopupProfile.classList.add('popup_is-opened');
-  closePopup(nameJob);
-}));
+formElement[formAddCard].addEventListener('submit', (evt) => handleAddFormSubmit(evt));
 
-newCardBtn.addEventListener('click', (function(evt) {
-  newCard.classList.add('popup_is-opened');
-  closePopup(addPlace);
-}));
+function zoomPicture(card) {
+  openPopupShort(imgZoom);
+  popupImage.src = card.src;
+  popupImage.alt = card.alt;
+  popupCaption.textContent = card.alt;
+}
+
+function closePopupButtonNoBubbling(popupType) {
+  popupContent[popupType].addEventListener('click', (evt) => evt.stopPropagation());
+  buttonClose[popupType].addEventListener('click', () => closePopupShort(popupType));
+}
+
+closePopupButtonNoBubbling(formEditProfile);
+closePopupButtonNoBubbling(formAddCard);
+closePopupButtonNoBubbling(imgZoom);
