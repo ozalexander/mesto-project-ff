@@ -1,6 +1,6 @@
-export { creatCard, deleteThisCard, cardLike }
+export { createCard, deleteThisCard, cardLike }
 
-function creatCard(item, { deleteCard, zoomCard, like }) {
+function createCard(item, { deleteCard, zoomCard, like }) {
   const cardsTemplate = document.querySelector('#card-template').content;
   const cardsElement = cardsTemplate.querySelector('.card').cloneNode(true);
   const cardTitle = cardsElement.querySelector('.card__title');

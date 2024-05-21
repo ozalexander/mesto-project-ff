@@ -1,6 +1,6 @@
 import '../pages/index.css';
 import { initialCards } from '../scripts/cards.js';
-import { creatCard, deleteThisCard, cardLike } from './card.js';
+import { createCard, deleteThisCard, cardLike } from './card.js';
 import { openPopup, closePopup } from './modal.js';
 
 const popup = document.querySelectorAll('.popup');
@@ -14,7 +14,7 @@ const placeInputLink = document.querySelector('.popup__input_type_url');
 const placesList = document.querySelector('.places__list');
 const buttonEditProfile = document.querySelector('.profile__edit-button');
 const defaultName = document.querySelector('.profile__title');
-const defaultjob = document.querySelector('.profile__description');
+const defaultJob = document.querySelector('.profile__description');
 const nameInput = document.querySelector('.popup__input_type_name');
 const jobInput = document.querySelector('.popup__input_type_description');
 const newCardBtn = document.querySelector('.profile__add-button');
@@ -24,12 +24,12 @@ const listOfFunctions = { deleteCard : deleteThisCard, zoomCard : zoomPicture, l
 const openPopupShort = (typeOfForm) => openPopup(popup[typeOfForm], popupOpened);
 const closePopupShort = (typeOfForm) => closePopup(popup[typeOfForm], popupOpened);
 
-initialCards.forEach(card => placesList.append(creatCard(card, listOfFunctions)));
+initialCards.forEach(card => placesList.append(createCard(card, listOfFunctions)));
 
 for (let i = 0; i < popup.length; i++) { popup[i].classList.add('popup_is-animated') }
 
 nameInput.value = defaultName.textContent;
-jobInput.value = defaultjob.textContent;
+jobInput.value = defaultJob.textContent;
 
 buttonEditProfile.addEventListener('click', (() => {openPopupShort(formEditProfile), nameInput.focus();}));
 newCardBtn.addEventListener('click', (() => {openPopupShort(formAddCard), placeInputName.focus()}));
@@ -37,7 +37,7 @@ newCardBtn.addEventListener('click', (() => {openPopupShort(formAddCard), placeI
 function handleEditFormSubmit(evt) {
   evt.preventDefault();
   defaultName.textContent = nameInput.value;
-  defaultjob.textContent = jobInput.value;
+  defaultJob.textContent = jobInput.value;
   closePopupShort(formEditProfile);
 }
 
@@ -51,7 +51,7 @@ function reset() {
 function handleAddFormSubmit(evt) {
   evt.preventDefault();
   initialCards.unshift({name: placeInputName.value, link: placeInputLink.value});
-  placesList.insertBefore(creatCard(initialCards[0], listOfFunctions), placesList.firstChild);
+  placesList.insertBefore(createCard(initialCards[0], listOfFunctions), placesList.firstChild);
   closePopupShort(formAddCard);
   setTimeout(reset, 600);
 }
@@ -70,6 +70,4 @@ function closePopupButtonNoBubbling(popupType) {
   buttonClose[popupType].addEventListener('click', () => closePopupShort(popupType));
 }
 
-closePopupButtonNoBubbling(formEditProfile);
-closePopupButtonNoBubbling(formAddCard);
-closePopupButtonNoBubbling(imgZoom);
+[formEditProfile, formAddCard, imgZoom].forEach(i => closePopupButtonNoBubbling(i));
