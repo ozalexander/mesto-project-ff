@@ -52,6 +52,7 @@ function handleAddFormSubmit(evt) {
   evt.preventDefault();
   initialCards.unshift({name: placeInputName.value, link: placeInputLink.value});
   placesList.insertBefore(createCard(initialCards[0], listOfFunctions), placesList.firstChild);
+  initialCards.shift();
   closePopupShort(formAddCard);
   setTimeout(reset, 600);
 }
