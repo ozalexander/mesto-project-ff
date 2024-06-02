@@ -18,6 +18,7 @@ const defaultJob = document.querySelector('.profile__description');
 const nameInput = document.querySelector('.popup__input_type_name');
 const jobInput = document.querySelector('.popup__input_type_description');
 const newCardBtn = document.querySelector('.profile__add-button');
+const inputs = document.querySelectorAll('input');
 const popupOpened = 'popup_is-opened';
 const formEditProfile = 0, formAddCard = 1, imgZoom = 2;
 const listOfFunctions = { deleteCard : deleteThisCard, zoomCard : zoomPicture, like : cardLike };
@@ -72,3 +73,11 @@ function closePopupButtonNoBubbling(popupType) {
 }
 
 [formEditProfile, formAddCard, imgZoom].forEach(i => closePopupButtonNoBubbling(i));
+
+inputs.forEach((input) => {
+  input.addEventListener('input', (evt) => {
+    evt.target.validity
+  })
+})
+
+clearValidation(profileForm, validationConfig); 
