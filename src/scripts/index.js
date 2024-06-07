@@ -33,6 +33,11 @@ for (let i = 0; i < popup.length; i++) { popup[i].classList.add('popup_is-animat
 avatar.addEventListener('click', () => {
   openPopupShort(avatarEdit);
   avatarInput.focus();
+  clearValidation(formElement[avatarEdit-1], { 
+    submitButtonSelector: '.popup__button',
+    inactiveButtonClass: 'popup__button_disabled',
+    errorClass: '.popup__error_visible'
+  })
 })
 
 buttonEditProfile.addEventListener('click', (() => {
@@ -50,28 +55,36 @@ newCardBtn.addEventListener('click', (() => {
   placeInputName.focus(); 
 }));
 
+const buttonLoaderOpen = (typeOfForm) => {
+  formElement[typeOfForm].querySelector('.popup__button').textContent = '';
+  formElement[typeOfForm].querySelector('.popup__button').classList.add('popup__button-loading');
+}
+
+const buttonLoaderClose = (typeOfForm) => {
+  formElement[typeOfForm].querySelector('.popup__button').textContent = 'Сохранить';
+  formElement[typeOfForm].querySelector('.popup__button').classList.remove('popup__button-loading')
+}
+
 function handleEditFormSubmit(evt) {
   evt.preventDefault();
-  formElement[formEditProfile].querySelector('.popup__button').textContent = '';
-  formElement[formEditProfile].querySelector('.popup__button').classList.add('popup__button-loading');
+  buttonLoaderOpen(formEditProfile)
   patchProfile(nameInput, jobInput)
     .then((res) => {
       if (res.ok) {
         setTimeout(() => { 
           defaultName.textContent = nameInput.value;
           defaultJob.textContent = jobInput.value;
-        }, 2000)
+        }, 500)
       } else {
         handleError(res)
       }
     })
     .catch((err)=> console.log(err))
     .finally(()=> {
+      setTimeout(() => {closePopupShort(formEditProfile)}, 500);
       setTimeout(() => {
-        closePopupShort(formEditProfile);
-        formElement[formEditProfile].querySelector('.popup__button').classList.remove('popup__button-loading');
-      }, 2000);
-      setTimeout(() => {formElement[formEditProfile].querySelector('.popup__button').textContent = 'Сохранить'}, 2500)
+        buttonLoaderClose(formEditProfile)
+      }, 1200)
     })
 }
 
@@ -89,34 +102,28 @@ function reset() {
 
 function handleAddFormSubmit(evt) {
   evt.preventDefault();
-  const buffer = [];
   if (placeInputName.value==='' && placeInputLink.value===''){
     closePopupShort(formAddCard);
   } else {
-    formElement[formAddCard].querySelector('.popup__button').textContent = '';
-    formElement[formAddCard].querySelector('.popup__button').classList.add('popup__button-loading');
+    buttonLoaderOpen(formAddCard)
     addCard(placeInputName, placeInputLink)
       .then((res) => {
         if (res.ok) {
-          setTimeout(() => { 
-            buffer.unshift({name: placeInputName.value, link: placeInputLink.value});
-            placesList.insertBefore(createCard(buffer[0], listOfFunctions, 0, true), placesList.firstChild);
-            buffer.shift()
-          }, 2000)
+          getCards()
+          .then((res) => handleResponse(res))
+          .then((res) => setTimeout(() => {placesList.insertBefore(createCard(res[0], listOfFunctions, 0), placesList.firstChild)}, 1000))
+          .catch((err) => console.log(err))
         } else {
           handleError(res)
         }
       })
       .catch((err)=> console.log(err))
       .finally(()=> {
-        setTimeout(() => {
-          closePopupShort(formAddCard)
-          formElement[formAddCard].querySelector('.popup__button').classList.remove('popup__button-loading'); 
-        }, 2000)
-        setTimeout(() => {
-          reset; 
-          formElement[formEditProfile].querySelector('.popup__button').textContent = 'Сохранить'
-        }, 2500)
+        setTimeout(() => {closePopupShort(formAddCard)}, 1000)
+          setTimeout(() => {
+            reset(); 
+            buttonLoaderClose(formAddCard)
+        }, 1800)
       })
   }
 }
@@ -125,12 +132,11 @@ formElement[formAddCard].addEventListener('submit', (evt) => handleAddFormSubmit
 
 function handleEditAvatarSubmit(evt) {
   evt.preventDefault();
-  formElement[avatarEdit-1].querySelector('.popup__button').textContent = '';
-  formElement[avatarEdit-1].querySelector('.popup__button').classList.add('popup__button-loading');
+  buttonLoaderOpen(avatarEdit-1);
   changeProfileAvatar(avatarInput)
     .then((res) => {
      if (res.ok) {
-        setTimeout(() => {avatar.style.backgroundImage = `url(${avatarInput.value})`}, 2000)
+        setTimeout(() => {avatar.style.backgroundImage = `url(${avatarInput.value})`}, 1000)
       } else {
         handleError(res)
       }
@@ -138,10 +144,11 @@ function handleEditAvatarSubmit(evt) {
     .catch((err)=> console.log(err))
     .finally(()=> {
       setTimeout(() => {
-        formElement[avatarEdit-1].querySelector('.popup__button').classList.remove('popup__button-loading');
         closePopupShort(avatarEdit)
-      }, 2000)
-      setTimeout(() => {reset; formElement[avatarEdit-1].querySelector('.popup__button').textContent = 'Сохранить'}, 2500)
+      }, 1000)
+      setTimeout(() => {
+        buttonLoaderClose(avatarEdit-1);
+      }, 1700)
     })
   }
 
@@ -195,20 +202,15 @@ const handleResponse = (res) => {
   handleError(res)
 }
 
-getCards()
-.then((res) => handleResponse(res))
-.then((res) => {
-  res.forEach(card => placesList.append(createCard(card, listOfFunctions, card.likes.length)));
-})
-.catch((err) => console.log(err))
-
-getProfile()
-.then((res) => handleResponse(res))
-.then((res) => {
-  defaultName.textContent = res.name;
-  defaultJob.textContent = res.about;
-  nameInput.value = defaultName.textContent;
-  jobInput.value = defaultJob.textContent;
-  avatar.style.backgroundImage = `url(${res.avatar})`;
-})
-.catch((err) => console.log(err))
+Promise.all([getCards(), getProfile()])
+  .then(([getCardsRes, getProfileRes]) => {
+    return Promise.all([handleResponse(getCardsRes), handleResponse(getProfileRes)])
+  })
+  .then(([cardsRes, profileRes]) => {
+    cardsRes.forEach(card => placesList.append(createCard(card, listOfFunctions, card.likes.length)));
+    defaultName.textContent = profileRes.name;
+    defaultJob.textContent = profileRes.about;
+    nameInput.value = defaultName.textContent;
+    jobInput.value = defaultJob.textContent;
+    avatar.style.backgroundImage = `url(${profileRes.avatar})`})
+  .catch((err) => console.log(err))

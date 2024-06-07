@@ -1,17 +1,22 @@
 export { createCard, deleteThisCard, cardLike }
 
-function createCard(item, { deleteThisCard, zoomPicture, cardLike, deleteCardByID, likeById, deleteLikeById, openPopup }, likes, myCard) {
+function createCard(item, { deleteThisCard, zoomPicture, cardLike, deleteCardByID, likeById, deleteLikeById, openPopup }, likes) {
   const cardsTemplate = document.querySelector('#card-template').content;
   const cardsElement = cardsTemplate.querySelector('.card').cloneNode(true);
+  const deleteButton = cardsElement.querySelector('.card__delete-button');
+  const deleteCardPopup = document.querySelector('.popup_type_delete');
   const cardTitle = cardsElement.querySelector('.card__title');
   const cardImage = cardsElement.querySelector('.card__image');
   const likeButton = cardsElement.querySelector('.card__like-button');
   const likeCount = cardsElement.querySelector('.card__like-button-counter');
-  cardImage.src = item.link;
+  let loaderImg = new Image();
+  loaderImg.src = item.link;
+  cardImage.src = "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2xodnh1MXk4MGN5M3kxNDdpNXRkZjBnOWQyYzIwc2gzZ21rMHhidCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/4EFt4UAegpqTy3nVce/giphy.webp";
   cardImage.alt = item.name;
   cardTitle.textContent = item.name;
   likeCount.textContent = likes;
-  cardImage.onerror = () => {
+  loaderImg.onload = () => cardImage.src = item.link;
+  loaderImg.onerror = () => {
     cardImage.src = 'https://media1.tenor.com/m/CBtVxFR3-oYAAAAC/error.gif';
     cardImage.style.pointerEvents = 'none';
   }
@@ -20,12 +25,7 @@ function createCard(item, { deleteThisCard, zoomPicture, cardLike, deleteCardByI
     likeButton.classList.add('card__like-button_is-active');
     }
   } catch { }
-  if (myCard || item.owner._id==="10d544c5bdef65a02d074b65"){
-    const button = document.createElement('button');
-    button.className = 'card__delete-button';
-    cardsElement.appendChild(button);
-    const deleteButton = cardsElement.querySelector('.card__delete-button');
-    const deleteCardPopup = document.querySelector('.popup_type_delete');
+  if (item.owner._id==="10d544c5bdef65a02d074b65"){
     deleteButton.addEventListener('click', () => { 
       openPopup(deleteCardPopup, 'popup_is-opened');
       deleteCardPopup.addEventListener('submit', () =>{
@@ -33,6 +33,8 @@ function createCard(item, { deleteThisCard, zoomPicture, cardLike, deleteCardByI
         deleteCardByID(item._id);
       })
     })
+  } else {
+    deleteButton.remove()
   }
   cardImage.addEventListener('click', () => zoomPicture(cardImage));
   likeButton.addEventListener('click', () => {
