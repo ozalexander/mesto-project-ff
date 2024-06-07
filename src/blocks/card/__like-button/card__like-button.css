@@ -22,10 +22,21 @@
   color: #000;
   font-size: 13px;
   position: absolute;
-  right: 26px;
+  right: 27px;
   bottom: 19px;
+  transition: .3s;
+}
+
+.card__like-button-counter-change {
+  transition: .9s;
+  transform: rotateY(360deg);
 }
 
 .card__like-button:hover {
   opacity: 0.6;
+}
+
+.card__like-button:active{
+  transition: 0.1s;
+  transform: scale(1.5)
 }

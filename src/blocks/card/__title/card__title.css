@@ -5,6 +5,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  /*Либо с точками из макета, либо этот набор свойств для эллипсиса текста в можно лучше*/
   margin: 0;
+}
+
+.card__title::selection {
+  color: white;
+  background-color: black;
 }

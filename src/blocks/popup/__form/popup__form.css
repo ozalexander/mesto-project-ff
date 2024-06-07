@@ -5,11 +5,10 @@
 .popup__error {
   opacity: 0;
   color: #F00;
-  font-family: 'Inter', sans-serif;
   font-size: 12px;
-  font-weight: 400;
   transition: 0.3s;
   display: inline-block;
+  block-size: 26px;
 }
 
 .popup__error_visible {

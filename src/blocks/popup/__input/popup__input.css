@@ -13,7 +13,16 @@
 }
 
 .popup__input_type_error {
-  border-bottom: 1px solid #F00;
+  border-bottom: 2px solid #F00;
+}
+
+.popup__input:focus-visible {
+  outline: 1px solid #000;
+}
+
+.popup__input::selection {
+  color: white;
+  background-color: black;
 }
 
 @media screen and (max-width: 568px) {

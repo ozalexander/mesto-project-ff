@@ -31,9 +31,31 @@
   user-select: none;
 }
 
+.popup__button-loading {
+  border: 8px solid white; 
+  border-top: 8px solid black; 
+  border-radius: 50%; 
+  background-color: white;
+  width: 50px; 
+  height: 50px; 
+  animation: spin 1s linear infinite; 
+  margin-left: 155px; 
+  pointer-events: none;
+}
+
 @media screen and (max-width: 568px) {
   .popup__button {
     font-size: 14px;
     line-height: 17px;
   }
 }
+
+@keyframes spin { 
+  0% { 
+      transform: rotate(0deg); 
+  } 
+
+  100% { 
+      transform: rotate(360deg); 
+  } 
+} 
