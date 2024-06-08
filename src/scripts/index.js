@@ -23,8 +23,8 @@ const jobInput = document.querySelector('.popup__input_type_description');
 const newCardBtn = document.querySelector('.profile__add-button');
 const errorPopupEl = document.querySelector('.popup_type_error');
 const popupOpened = 'popup_is-opened';
-const formEditProfile = 0, formAddCard = 1, imgZoom = 2, avatarEdit = 3, deleteCardConfirm = 4, errorPopup = 5;
-const listOfFunctions = { deleteThisCard, zoomPicture, cardLike, deleteCardByID, likeById, deleteLikeById, openPopup };
+const formEditProfile = 0, formAddCard = 1, imgZoom = 2, avatarEdit = 3, errorPopup = 5;
+const listOfFunctions = { deleteThisCard, zoomPicture, cardLike, deleteCardByID, likeById, deleteLikeById, openPopup, closePopup };
 const openPopupShort = (typeOfForm) => openPopup(popup[typeOfForm], popupOpened);
 const closePopupShort = (typeOfForm) => closePopup(popup[typeOfForm], popupOpened);
 
@@ -32,6 +32,7 @@ for (let i = 0; i < popup.length; i++) { popup[i].classList.add('popup_is-animat
 
 avatar.addEventListener('click', () => {
   openPopupShort(avatarEdit);
+  avatarInput.value = '';
   avatarInput.focus();
   clearValidation(formElement[avatarEdit-1], { 
     submitButtonSelector: '.popup__button',
@@ -42,6 +43,8 @@ avatar.addEventListener('click', () => {
 
 buttonEditProfile.addEventListener('click', (() => {
   openPopupShort(formEditProfile);
+  nameInput.value = defaultName.textContent;
+  jobInput.value = defaultJob.textContent;
   nameInput.focus();
   clearValidation(formElement[formEditProfile], { 
     submitButtonSelector: '.popup__button',
@@ -153,13 +156,6 @@ function handleEditAvatarSubmit(evt) {
   }
 
 formElement[avatarEdit-1].addEventListener('submit', (evt) => handleEditAvatarSubmit(evt));
-
-function handleDeleteCardSubmit(evt) {
-  evt.preventDefault();
-  closePopupShort(deleteCardConfirm);
-}
-
-formElement[deleteCardConfirm-1].addEventListener('submit', (evt) => handleDeleteCardSubmit(evt));
 
 errorPopupEl.addEventListener('submit', (evt) => {
   evt.preventDefault();

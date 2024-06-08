@@ -33,21 +33,21 @@ const addCard = (placeInputName, placeInputLink) => fetch(config.baseUrl+cardsUr
 })
 
 function deleteCardByID(cardId) {
-  fetch(`${config.baseUrl}${cardsUrl}${cardId}`, {
+  return fetch(`${config.baseUrl}${cardsUrl}${cardId}`, {
     method:'DELETE',
     headers: config.headers,
   })
 }
 
 function likeById(cardId) {
-  fetch(`${config.baseUrl}${likesUrl}${cardId}`, {
+  return fetch(`${config.baseUrl}${likesUrl}${cardId}`, {
     method:'PUT',
     headers: config.headers,
   })
 }
 
 function deleteLikeById(cardId) {
-  fetch(`${config.baseUrl}${likesUrl}${cardId}`, {
+  return fetch(`${config.baseUrl}${likesUrl}${cardId}`, {
     method:'DELETE',
     headers: config.headers,
   })
