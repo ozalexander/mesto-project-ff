@@ -27,7 +27,7 @@ const zoomImgPopup = document.querySelector('.popup_type_image');
 const changeAvatarPopup = document.querySelector('.popup_type_avatar');
 const deleteConfirmationPopup = document.querySelector('.popup_type_delete');
 const errorPopup = document.querySelector('.popup_type_error');
-const errorPopupSubmit = document.querySelector(formElement);
+const errorPopupSubmit = errorPopup.querySelector(formElement);
 const editProfileForm = editProfilePopup.querySelector(formElement);
 const addCardForm = addCardPopup.querySelector(formElement);
 const changeAvatarForm = changeAvatarPopup.querySelector(formElement);
@@ -69,9 +69,9 @@ function handleEditFormSubmit(evt) {
       defaultName.textContent = nameInput.value;
       defaultJob.textContent = jobInput.value;
       closePopup(editProfilePopup)
-      editProfileForm.querySelector('.popup__button').textContent = 'Сохранить';
     })
     .catch((err)=> handleError(err))
+    .finally(()=> editProfileForm.querySelector('.popup__button').textContent = 'Сохранить')
 }
 
 editProfileForm.addEventListener('submit', (evt) => handleEditFormSubmit(evt));
@@ -86,9 +86,9 @@ function handleAddFormSubmit(evt) {
       closePopup(addCardPopup);
       placeInputName.value = '';
       placeInputLink.value = '';
-      addCardForm.querySelector('.popup__button').textContent = 'Сохранить';
     })
     .catch((err) => handleError(err))
+    .finally(()=> addCardForm.querySelector('.popup__button').textContent = 'Сохранить')
 }
 
 addCardForm.addEventListener('submit', evt => handleAddFormSubmit(evt));
@@ -100,7 +100,7 @@ deleteCardForm.addEventListener('submit', (evt) => {
           deleteThisCard(document.getElementById(tempId));
           closePopup(deleteConfirmationPopup);
         })
-      .catch((err) => handleError(err))  
+      .catch((err) => handleError(err))
 })
 
 function handleEditAvatarSubmit(evt) {
@@ -109,18 +109,13 @@ function handleEditAvatarSubmit(evt) {
   changeProfileAvatar(avatarInput.value)
     .then(() => {
       closePopup(changeAvatarPopup);
-      changeAvatarForm.querySelector('.popup__button').textContent = 'Сохранить';
       avatar.style.backgroundImage = `url(${avatarInput.value})`
     })
     .catch((err)=> handleError(err))
+    .finally(()=> changeAvatarForm.querySelector('.popup__button').textContent = 'Сохранить')
 }
 
 changeAvatarForm.addEventListener('submit', evt => handleEditAvatarSubmit(evt));
-
-errorPopupSubmit.addEventListener('submit', evt => {
-  evt.preventDefault();
-  closePopup(errorPopup);
-})
 
 function zoomPicture(card) {
   openPopup(zoomImgPopup);
@@ -131,6 +126,11 @@ function zoomPicture(card) {
 
 popupContentList.forEach(i => i.addEventListener('click', evt => evt.stopPropagation()));
 popupList.forEach(i => i.querySelector('.popup__close').addEventListener('click', () => closePopup(i)))
+
+errorPopupSubmit.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+  closePopup(errorPopup);
+})
 
 enableValidation({
   formSelector: '.popup__form',
@@ -143,7 +143,7 @@ enableValidation({
 
 const handleError = (err) => {
   console.log(err)
-  errorPopup.querySelector('.popup__title').textContent = `Ошибка: ${err}`;
+  errorPopup.querySelector('.popup__title').textContent = `${err.message}. Ошибка: ${err.httpResponseCode}`;
   openPopup(errorPopup);
 }
 

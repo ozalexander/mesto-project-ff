@@ -1,4 +1,4 @@
-export { getCards, getProfile, patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar, getCardsAndProfile, handleResponse }
+export { getCards, getProfile, patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar, getCardsAndProfile }
 
 const config = {
   baseUrl: 'https://nomoreparties.co/v1/wff-cohort-15',
@@ -8,11 +8,15 @@ const config = {
   }
 }
 
-const handleResponse = (res) => {
+function handleResponse(res) {
   if (res.ok) {
-    return res.json();
-    }
-  return Promise.reject(res.status)
+    return res.json(); 
+  } 
+  return res.json() 
+  .then((error) => { 
+    error.httpResponseCode = res.status; 
+    return Promise.reject(error);
+  })
 }
 
 const cardsUrl = '/cards/', usersUrl = '/users/me', likesUrl = cardsUrl+'/likes/', avatarUrl = usersUrl+'/avatar';
@@ -72,12 +76,7 @@ const changeProfileAvatar = (input) => fetch(config.baseUrl+avatarUrl, {
     avatar : input
   })
 })
-  .then((res) => {
-    if (res.ok) {
-      return res;
-      }
-    return Promise.reject(res.status)
-  })
+  .then(res => handleResponse(res))
 
 const getCardsAndProfile = () => {
   return Promise.all([getCards(), getProfile()])
