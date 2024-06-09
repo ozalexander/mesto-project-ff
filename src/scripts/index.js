@@ -61,16 +61,6 @@ newCardBtn.addEventListener('click', (() => {
   clearValidation(addCardForm, validationConfig)
 }));
 
-const buttonLoaderOpen = (typeOfForm) => {
-  typeOfForm.querySelector('.popup__button').textContent = '';
-  typeOfForm.querySelector('.popup__button').classList.add('popup__button-loading');
-}
-
-const buttonLoaderClose = (typeOfForm) => {
-  typeOfForm.querySelector('.popup__button').textContent = 'Сохранить';
-  typeOfForm.querySelector('.popup__button').classList.remove('popup__button-loading')
-}
-
 function handleEditFormSubmit(evt) {
   evt.preventDefault();
   editProfileForm.querySelector('.popup__button').textContent = 'Сохранение...';
@@ -88,7 +78,7 @@ editProfileForm.addEventListener('submit', (evt) => handleEditFormSubmit(evt));
 
 function handleAddFormSubmit(evt) {
   evt.preventDefault();
-  buttonLoaderOpen(addCardForm)
+  addCardForm.querySelector('.popup__button').textContent = 'Сохранение...';
   addCard(placeInputName, placeInputLink)
     .then((res) => {
       placesList.insertBefore(createCard(res, listOfFunctions, 0, res.owner._id), placesList.firstChild)
@@ -96,7 +86,7 @@ function handleAddFormSubmit(evt) {
       closePopup(addCardPopup);
       placeInputName.value = '';
       placeInputLink.value = '';
-      buttonLoaderClose(addCardForm);
+      addCardForm.querySelector('.popup__button').textContent = 'Сохранить';
     })
     .catch((err) => handleError(err))
 }
@@ -115,11 +105,11 @@ deleteCardForm.addEventListener('submit', (evt) => {
 
 function handleEditAvatarSubmit(evt) {
   evt.preventDefault();
-  buttonLoaderOpen(changeAvatarForm);
+  changeAvatarForm.querySelector('.popup__button').textContent = 'Сохранение...';
   changeProfileAvatar(avatarInput.value)
     .then(() => {
       closePopup(changeAvatarPopup);
-      buttonLoaderClose(changeAvatarForm);
+      changeAvatarForm.querySelector('.popup__button').textContent = 'Сохранить';
       avatar.style.backgroundImage = `url(${avatarInput.value})`
     })
     .catch((err)=> handleError(err))
