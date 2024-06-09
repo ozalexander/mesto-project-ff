@@ -10,9 +10,6 @@ function createCard(item, { zoomPicture, cardLike, likeById, deleteLikeById }, l
   const cardImage = cardsElement.querySelector('.card__image');
   const likeButton = cardsElement.querySelector('.card__like-button');
   const likeCount = cardsElement.querySelector('.card__like-button-counter');
-  const handleError = (res) => {
-    return Promise.reject(`Ошибка: ${res.status}`)
-  }
   cardImage.src = item.link;
   cardImage.alt = item.name;
   cardTitle.textContent = item.name;

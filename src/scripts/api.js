@@ -69,7 +69,7 @@ const changeProfileAvatar = (input) => fetch(config.baseUrl+avatarUrl, {
   method:'PATCH',
   headers: config.headers,
   body: JSON.stringify({
-    avatar : input.value
+    avatar : input
   })
 })
   .then((res) => {
