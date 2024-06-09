@@ -29,7 +29,7 @@ const patchProfile = (defaultName, defaultJob) => fetch(config.baseUrl+usersUrl,
     about : defaultJob.value,
   })
   })
-  .then((res) => handleResponse(res))
+  .then(res => handleResponse(res))
 
 const addCard = (placeInputName, placeInputLink) => fetch(config.baseUrl+cardsUrl, {
   method:'POST',
@@ -39,14 +39,14 @@ const addCard = (placeInputName, placeInputLink) => fetch(config.baseUrl+cardsUr
     link : placeInputLink.value,
   })
 })
-  .then((res) => handleResponse(res))
+  .then(res => handleResponse(res))
 
 function deleteCardByID(cardId) {
   return fetch(`${config.baseUrl}${cardsUrl}${cardId}`, {
     method:'DELETE',
     headers: config.headers,
   })
-  .then((res) => handleResponse(res))
+  .then(res => handleResponse(res))
 }
 
 function likeById(cardId) {
@@ -54,7 +54,7 @@ function likeById(cardId) {
     method:'PUT',
     headers: config.headers,
   })
-  .then((res) => handleResponse(res))
+  .then(res => handleResponse(res))
 }
 
 function deleteLikeById(cardId) {
@@ -62,7 +62,7 @@ function deleteLikeById(cardId) {
     method:'DELETE',
     headers: config.headers,
   })
-  .then((res) => handleResponse(res))
+  .then(res => handleResponse(res))
 }
 
 const changeProfileAvatar = (input) => fetch(config.baseUrl+avatarUrl, {

@@ -1,20 +1,18 @@
 export { openPopup, closePopup }
 
-const closeByEsc = (evt, popup, classOpen) => {if (evt.key === 'Escape') {closePopup(popup, classOpen)}}
-const closeByOuterClick = (popup, classOpen) => closePopup(popup, classOpen);
+const openedPopup = 'popup_is-opened'
 
-function openPopup(popup, classOpen) {
-  const closeByEscEvt = (evt) => closeByEsc(evt, popup, classOpen);
-  const closeByOuterClickEvt = () => closeByOuterClick(popup, classOpen);
-  popup.classList.add(classOpen);
-  popup.addEventListener('click', closeByOuterClickEvt);
-  document.addEventListener('keydown', closeByEscEvt);
-  popup.closeByOuterClickEvt = closeByOuterClickEvt;
-  popup.closeByEscEvt = closeByEscEvt;
+const closeByEsc = (evt) => {if (evt.key === 'Escape') closePopup(document.querySelector(`.${openedPopup}`))}
+
+const closeByOuterClick = () => closePopup(document.querySelector(`.${openedPopup}`))
+
+function openPopup(popup) {
+  popup.classList.add(openedPopup);
+  popup.addEventListener('click', closeByOuterClick);
+  document.addEventListener('keydown', closeByEsc);
 }
 
-function closePopup(popup, classOpen) {
-  popup.classList.remove(classOpen);
-  popup.removeEventListener('click', popup.closeByOuterClickEvt);
-  document.removeEventListener('keydown', popup.closeByEscEvt);
+function closePopup(popup) {
+  popup.classList.remove(openedPopup);
+  document.removeEventListener('keydown', closeByEsc);
 }

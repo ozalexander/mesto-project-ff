@@ -2,7 +2,7 @@ export { createCard, deleteThisCard, cardLike, tempId }
 
 let tempId = 0;
 
-function createCard(item, { zoomPicture, cardLike, likeById, deleteLikeById }, likes=0, myId) {
+function createCard(item, { zoomPicture, cardLike, likeById, deleteLikeById }, likes, myId) {
   const cardsTemplate = document.querySelector('#card-template').content;
   const cardsElement = cardsTemplate.querySelector('.card').cloneNode(true);
   const deleteButton = cardsElement.querySelector('.card__delete-button');
