@@ -1,4 +1,4 @@
-export { getCards, getProfile, patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar }
+export { getCards, getProfile, patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar, getCardsAndProfile, handleResponse }
 
 const config = {
   baseUrl: 'https://nomoreparties.co/v1/wff-cohort-15',
@@ -6,6 +6,13 @@ const config = {
     authorization: 'ba744ed5-837c-473f-902f-5686fb20a2a0',
     'Content-Type': 'application/json'
   }
+}
+
+const handleResponse = (res) => {
+  if (res.ok) {
+    return res.json();
+    }
+  return Promise.reject(res.status)
 }
 
 const cardsUrl = '/cards/', usersUrl = '/users/me', likesUrl = cardsUrl+'/likes/', avatarUrl = usersUrl+'/avatar';
@@ -21,7 +28,8 @@ const patchProfile = (defaultName, defaultJob) => fetch(config.baseUrl+usersUrl,
     name : defaultName.value,
     about : defaultJob.value,
   })
-})
+  })
+  .then((res) => handleResponse(res))
 
 const addCard = (placeInputName, placeInputLink) => fetch(config.baseUrl+cardsUrl, {
   method:'POST',
@@ -31,12 +39,14 @@ const addCard = (placeInputName, placeInputLink) => fetch(config.baseUrl+cardsUr
     link : placeInputLink.value,
   })
 })
+  .then((res) => handleResponse(res))
 
 function deleteCardByID(cardId) {
   return fetch(`${config.baseUrl}${cardsUrl}${cardId}`, {
     method:'DELETE',
     headers: config.headers,
   })
+  .then((res) => handleResponse(res))
 }
 
 function likeById(cardId) {
@@ -44,6 +54,7 @@ function likeById(cardId) {
     method:'PUT',
     headers: config.headers,
   })
+  .then((res) => handleResponse(res))
 }
 
 function deleteLikeById(cardId) {
@@ -51,6 +62,7 @@ function deleteLikeById(cardId) {
     method:'DELETE',
     headers: config.headers,
   })
+  .then((res) => handleResponse(res))
 }
 
 const changeProfileAvatar = (input) => fetch(config.baseUrl+avatarUrl, {
@@ -60,3 +72,16 @@ const changeProfileAvatar = (input) => fetch(config.baseUrl+avatarUrl, {
     avatar : input.value
   })
 })
+  .then((res) => {
+    if (res.ok) {
+      return res;
+      }
+    return Promise.reject(res.status)
+  })
+
+const getCardsAndProfile = () => {
+  return Promise.all([getCards(), getProfile()])
+  .then(([getCardsRes, getProfileRes]) => {
+    return Promise.all([handleResponse(getCardsRes), handleResponse(getProfileRes)])
+  })
+}

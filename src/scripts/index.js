@@ -1,13 +1,13 @@
 import '../pages/index.css';
-import { createCard, deleteThisCard, cardLike } from './card.js';
+import { createCard, deleteThisCard, cardLike, tempId } from './card.js';
 import { openPopup, closePopup } from './modal.js';
 import { enableValidation, clearValidation } from './validation.js';
-import { getCards, getProfile, patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar } from './api.js'
+import { patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar, getCardsAndProfile, handleResponse } from './api.js'
 
 const popup = document.querySelectorAll('.popup');
 const buttonClose = document.querySelectorAll('.popup__close');
 const popupContent = document.querySelectorAll('.popup__content');
-const formElement = document.querySelectorAll('.popup__form');
+const formElement = '.popup__form';
 const popupImage = document.querySelector('.popup__image');
 const popupCaption = document.querySelector('.popup__caption');
 const placeInputName = document.querySelector('.popup__input_type_card-name');
@@ -18,27 +18,39 @@ const defaultName = document.querySelector('.profile__title');
 const defaultJob = document.querySelector('.profile__description');
 const avatar = document.querySelector('.profile__image');
 const avatarInput = document.querySelector('.popup__input_avatar');
+const deleteCardForm = document.getElementsByName('confirm-delete')[0];
 const nameInput = document.querySelector('.popup__input_type_name');
 const jobInput = document.querySelector('.popup__input_type_description');
 const newCardBtn = document.querySelector('.profile__add-button');
 const errorPopupEl = document.querySelector('.popup_type_error');
 const popupOpened = 'popup_is-opened';
-const formEditProfile = 0, formAddCard = 1, imgZoom = 2, avatarEdit = 3, errorPopup = 5;
-const listOfFunctions = { deleteThisCard, zoomPicture, cardLike, deleteCardByID, likeById, deleteLikeById, openPopup, closePopup };
+const editProfilePopup = document.querySelector('.popup_type_edit');
+const addCardPopup = document.querySelector('.popup_type_new-card');
+const zoomImgPopup = document.querySelector('.popup__content_image');
+const changeAvatarPopup = document.querySelector('.popup_type_avatar');
+const deleteConfirmationPopup = document.querySelector('.popup_type_delete');
+const editProfileForm = editProfilePopup.querySelector(formElement);
+const addCardForm = addCardPopup.querySelector(formElement);
+const zoomImgForm = zoomImgPopup.querySelector(formElement);
+const changeAvatarForm = changeAvatarPopup.querySelector(formElement);
+const deleteConfirmationForm = deleteConfirmationPopup.querySelector(formElement);
+const formEditProfile = 0, formAddCard = 1, imgZoom = 2, avatarEdit = 3, deletePopup = 4, errorPopup = 5;
+const listOfFunctions = { zoomPicture, cardLike, likeById, deleteLikeById, openPopup };
+const validationConfig = { 
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  errorClass: '.popup__error_visible'
+}
 const openPopupShort = (typeOfForm) => openPopup(popup[typeOfForm], popupOpened);
 const closePopupShort = (typeOfForm) => closePopup(popup[typeOfForm], popupOpened);
 
-for (let i = 0; i < popup.length; i++) { popup[i].classList.add('popup_is-animated') }
+popup.forEach(i => i.classList.add('popup_is-animated'))
 
 avatar.addEventListener('click', () => {
   openPopupShort(avatarEdit);
   avatarInput.value = '';
   avatarInput.focus();
-  clearValidation(formElement[avatarEdit-1], { 
-    submitButtonSelector: '.popup__button',
-    inactiveButtonClass: 'popup__button_disabled',
-    errorClass: '.popup__error_visible'
-  })
+  clearValidation(formElement[avatarEdit-1], validationConfig)
 })
 
 buttonEditProfile.addEventListener('click', (() => {
@@ -46,16 +58,13 @@ buttonEditProfile.addEventListener('click', (() => {
   nameInput.value = defaultName.textContent;
   jobInput.value = defaultJob.textContent;
   nameInput.focus();
-  clearValidation(formElement[formEditProfile], { 
-    submitButtonSelector: '.popup__button',
-    inactiveButtonClass: 'popup__button_disabled',
-    errorClass: '.popup__error_visible'
-  })
+  clearValidation(formElement[formEditProfile], validationConfig)
 }));
 
 newCardBtn.addEventListener('click', (() => {
   openPopupShort(formAddCard); 
   placeInputName.focus(); 
+  clearValidation(formElement[formAddCard], validationConfig)
 }));
 
 const buttonLoaderOpen = (typeOfForm) => {
@@ -72,23 +81,14 @@ function handleEditFormSubmit(evt) {
   evt.preventDefault();
   buttonLoaderOpen(formEditProfile)
   patchProfile(nameInput, jobInput)
-    .then((res) => {
-      if (res.ok) {
-        setTimeout(() => { 
-          defaultName.textContent = nameInput.value;
-          defaultJob.textContent = jobInput.value;
-        }, 500)
-      } else {
-        handleError(res)
-      }
+    .then(() => {
+      defaultName.textContent = nameInput.value;
+      defaultJob.textContent = jobInput.value;
+      closePopupShort(formEditProfile)
+      buttonLoaderClose(formEditProfile)
     })
-    .catch((err)=> console.log(err))
-    .finally(()=> {
-      setTimeout(() => {closePopupShort(formEditProfile)}, 500);
-      setTimeout(() => {
-        buttonLoaderClose(formEditProfile)
-      }, 1200)
-    })
+    .catch((err)=> handleError(err))
+    .finally(() => buttonLoaderClose(formEditProfile))
 }
 
 formElement[formEditProfile].addEventListener('submit', (evt) => handleEditFormSubmit(evt));
@@ -96,63 +96,44 @@ formElement[formEditProfile].addEventListener('submit', (evt) => handleEditFormS
 function reset() {
   placeInputName.value = '';
   placeInputLink.value = '';
-  clearValidation(formElement[formAddCard], { 
-    submitButtonSelector: '.popup__button',
-    inactiveButtonClass: 'popup__button_disabled',
-    errorClass: '.popup__error_visible'
-  })
 }
 
 function handleAddFormSubmit(evt) {
   evt.preventDefault();
-  if (placeInputName.value==='' && placeInputLink.value===''){
-    closePopupShort(formAddCard);
-  } else {
-    buttonLoaderOpen(formAddCard)
-    addCard(placeInputName, placeInputLink)
-      .then((res) => {
-        if (res.ok) {
-          getCards()
-          .then((res) => handleResponse(res))
-          .then((res) => setTimeout(() => {placesList.insertBefore(createCard(res[0], listOfFunctions, 0), placesList.firstChild)}, 1000))
-          .catch((err) => console.log(err))
-        } else {
-          handleError(res)
-        }
-      })
-      .catch((err)=> console.log(err))
-      .finally(()=> {
-        setTimeout(() => {closePopupShort(formAddCard)}, 1000)
-          setTimeout(() => {
-            reset(); 
-            buttonLoaderClose(formAddCard)
-        }, 1800)
-      })
-  }
+  buttonLoaderOpen(formAddCard)
+  addCard(placeInputName, placeInputLink)
+    .then((res) => {
+      placesList.insertBefore(createCard(res, listOfFunctions, 0, res.owner._id), placesList.firstChild)
+      placesList.querySelector('.card__delete-button').addEventListener('click', () => openPopupShort(deletePopup));
+      closePopupShort(formAddCard);
+      reset();
+      buttonLoaderClose(formAddCard);
+    })
+    .catch((err) => handleError(err))
 }
 
 formElement[formAddCard].addEventListener('submit', (evt) => handleAddFormSubmit(evt));
+
+deleteCardForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    deleteCardByID(tempId)
+      .then(() => {
+          deleteThisCard(document.getElementById(tempId));
+          closePopupShort(deletePopup);
+        })
+      .catch((err) => handleError(err))  
+})
 
 function handleEditAvatarSubmit(evt) {
   evt.preventDefault();
   buttonLoaderOpen(avatarEdit-1);
   changeProfileAvatar(avatarInput)
-    .then((res) => {
-     if (res.ok) {
-        setTimeout(() => {avatar.style.backgroundImage = `url(${avatarInput.value})`}, 1000)
-      } else {
-        handleError(res)
-      }
+    .then(() => {
+      closePopupShort(avatarEdit);
+      buttonLoaderClose(avatarEdit-1);
+      avatar.style.backgroundImage = `url(${avatarInput.value})`
     })
-    .catch((err)=> console.log(err))
-    .finally(()=> {
-      setTimeout(() => {
-        closePopupShort(avatarEdit)
-      }, 1000)
-      setTimeout(() => {
-        buttonLoaderClose(avatarEdit-1);
-      }, 1700)
-    })
+    .catch((err)=> handleError(err))
   }
 
 formElement[avatarEdit-1].addEventListener('submit', (evt) => handleEditAvatarSubmit(evt));
@@ -185,28 +166,17 @@ enableValidation({
   errorClass: 'popup__error_visible'
 });
 
-const handleError = (res) => {
-  popup[errorPopup].querySelector('.popup__title').textContent = `Ошибка: ${res.status}`;
+const handleError = (err) => {
+  console.log(err)
+  popup[errorPopup].querySelector('.popup__title').textContent = `Ошибка: ${err}`;
   openPopupShort(errorPopup);
-  return Promise.reject(`Ошибка: ${res.status}`)
 }
 
-const handleResponse = (res) => {
-  if (res.ok) {
-    return res.json();
-    }
-  handleError(res)
-}
-
-Promise.all([getCards(), getProfile()])
-  .then(([getCardsRes, getProfileRes]) => {
-    return Promise.all([handleResponse(getCardsRes), handleResponse(getProfileRes)])
-  })
+getCardsAndProfile()
   .then(([cardsRes, profileRes]) => {
-    cardsRes.forEach(card => placesList.append(createCard(card, listOfFunctions, card.likes.length)));
+    cardsRes.forEach(card => placesList.append(createCard(card, listOfFunctions, card.likes.length, profileRes._id)));
     defaultName.textContent = profileRes.name;
     defaultJob.textContent = profileRes.about;
-    nameInput.value = defaultName.textContent;
-    jobInput.value = defaultJob.textContent;
     avatar.style.backgroundImage = `url(${profileRes.avatar})`})
-  .catch((err) => console.log(err))
+  .then(() => document.querySelectorAll('.card__delete-button').forEach(del => del.addEventListener('click', () => openPopupShort(deletePopup))))
+  .catch((err) => handleError(err))

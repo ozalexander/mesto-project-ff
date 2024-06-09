@@ -56,7 +56,8 @@ const hideInputError = (formElement, inputElement, inputErrorClass, errorClass) 
   errorElement.classList.remove(errorClass)
 };
 
-const clearValidation = (profileForm, { submitButtonSelector, inactiveButtonClass, errorClass }) => {
-  profileForm.querySelectorAll(errorClass).forEach(err => err.textContent='');
-  profileForm.querySelector(submitButtonSelector).classList.add(inactiveButtonClass);
+const clearValidation = (form, { submitButtonSelector, inactiveButtonClass, errorClass }) => {
+  form.querySelectorAll(errorClass).forEach(err => err.textContent='');
+  form.querySelectorAll('input').forEach(input => input.classList.remove('popup__input_type_error'));
+  form.querySelector(submitButtonSelector).classList.add(inactiveButtonClass);
 };
