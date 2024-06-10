@@ -2,7 +2,7 @@ import '../pages/index.css';
 import { createCard, deleteThisCard, cardLike, tempId } from './card.js';
 import { openPopup, closePopup } from './modal.js';
 import { enableValidation, clearValidation } from './validation.js';
-import { patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar, getCardsAndProfile } from './api.js'
+import { getCards, getProfile, patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar } from './api.js'
 
 const popupList = document.querySelectorAll('.popup');
 const popupContentList = document.querySelectorAll('.popup__content');
@@ -70,8 +70,8 @@ function handleEditFormSubmit(evt) {
       defaultJob.textContent = jobInput.value;
       closePopup(editProfilePopup)
     })
-    .catch((err)=> handleError(err))
-    .finally(()=> editProfileForm.querySelector('.popup__button').textContent = 'Сохранить')
+    .catch(handleError)
+    .finally(editProfileForm.querySelector('.popup__button').textContent = 'Сохранить')
 }
 
 editProfileForm.addEventListener('submit', (evt) => handleEditFormSubmit(evt));
@@ -87,8 +87,8 @@ function handleAddFormSubmit(evt) {
       placeInputName.value = '';
       placeInputLink.value = '';
     })
-    .catch((err) => handleError(err))
-    .finally(()=> addCardForm.querySelector('.popup__button').textContent = 'Сохранить')
+    .catch(handleError)
+    .finally(addCardForm.querySelector('.popup__button').textContent = 'Сохранить')
 }
 
 addCardForm.addEventListener('submit', evt => handleAddFormSubmit(evt));
@@ -100,7 +100,7 @@ deleteCardForm.addEventListener('submit', (evt) => {
           deleteThisCard(document.getElementById(tempId));
           closePopup(deleteConfirmationPopup);
         })
-      .catch((err) => handleError(err))
+      .catch(handleError)
 })
 
 function handleEditAvatarSubmit(evt) {
@@ -111,8 +111,8 @@ function handleEditAvatarSubmit(evt) {
       closePopup(changeAvatarPopup);
       avatar.style.backgroundImage = `url(${avatarInput.value})`
     })
-    .catch((err)=> handleError(err))
-    .finally(()=> changeAvatarForm.querySelector('.popup__button').textContent = 'Сохранить')
+    .catch(handleError)
+    .finally(changeAvatarForm.querySelector('.popup__button').textContent = 'Сохранить')
 }
 
 changeAvatarForm.addEventListener('submit', evt => handleEditAvatarSubmit(evt));
@@ -147,11 +147,11 @@ const handleError = (err) => {
   openPopup(errorPopup);
 }
 
-getCardsAndProfile()
+Promise.all([getCards(), getProfile()])
   .then(([cardsRes, profileRes]) => {
     cardsRes.forEach(card => placesList.append(createCard(card, listOfFunctions, card.likes.length, profileRes._id)));
     defaultName.textContent = profileRes.name;
     defaultJob.textContent = profileRes.about;
     avatar.style.backgroundImage = `url(${profileRes.avatar})`})
   .then(() => document.querySelectorAll('.card__delete-button').forEach(del => del.addEventListener('click', () => openPopup(deleteConfirmationPopup))))
-  .catch(err => handleError(err))
+  .catch(handleError)

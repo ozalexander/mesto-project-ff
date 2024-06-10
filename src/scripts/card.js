@@ -35,14 +35,14 @@ function createCard(item, { zoomPicture, cardLike, likeById, deleteLikeById }, l
           likeCount.textContent = res.likes.length
           cardLike(likeButton, likeCount)
         })
-        .catch((err) => console.log(err))
+        .catch(console.dir)
     } else {
       likeById(item._id)
         .then((res) => {
           likeCount.textContent = res.likes.length
           cardLike(likeButton, likeCount)     
           })
-        .catch((err) => console.log(err))
+        .catch(console.dir)
     }
   });
   return cardsElement;

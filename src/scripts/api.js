@@ -1,4 +1,4 @@
-export { getCards, getProfile, patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar, getCardsAndProfile }
+export { getCards, getProfile, patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar }
 
 const config = {
   baseUrl: 'https://nomoreparties.co/v1/wff-cohort-15',
@@ -22,8 +22,10 @@ function handleResponse(res) {
 const cardsUrl = '/cards/', usersUrl = '/users/me', likesUrl = cardsUrl+'/likes/', avatarUrl = usersUrl+'/avatar';
 
 const getCards = () => fetch(config.baseUrl+cardsUrl, { headers: config.headers })
+  .then(handleResponse)
 
 const getProfile = () => fetch(config.baseUrl+usersUrl, { headers: config.headers })
+  .then(handleResponse)
 
 const patchProfile = (defaultName, defaultJob) => fetch(config.baseUrl+usersUrl, {
   method:'PATCH',
@@ -33,7 +35,7 @@ const patchProfile = (defaultName, defaultJob) => fetch(config.baseUrl+usersUrl,
     about : defaultJob.value,
   })
   })
-  .then(res => handleResponse(res))
+  .then(handleResponse)
 
 const addCard = (placeInputName, placeInputLink) => fetch(config.baseUrl+cardsUrl, {
   method:'POST',
@@ -43,14 +45,14 @@ const addCard = (placeInputName, placeInputLink) => fetch(config.baseUrl+cardsUr
     link : placeInputLink.value,
   })
 })
-  .then(res => handleResponse(res))
+  .then(handleResponse)
 
 function deleteCardByID(cardId) {
   return fetch(`${config.baseUrl}${cardsUrl}${cardId}`, {
     method:'DELETE',
     headers: config.headers,
   })
-  .then(res => handleResponse(res))
+  .then(handleResponse)
 }
 
 function likeById(cardId) {
@@ -66,7 +68,7 @@ function deleteLikeById(cardId) {
     method:'DELETE',
     headers: config.headers,
   })
-  .then(res => handleResponse(res))
+  .then(handleResponse)
 }
 
 const changeProfileAvatar = (input) => fetch(config.baseUrl+avatarUrl, {
@@ -76,11 +78,4 @@ const changeProfileAvatar = (input) => fetch(config.baseUrl+avatarUrl, {
     avatar : input
   })
 })
-  .then(res => handleResponse(res))
-
-const getCardsAndProfile = () => {
-  return Promise.all([getCards(), getProfile()])
-  .then(([getCardsRes, getProfileRes]) => {
-    return Promise.all([handleResponse(getCardsRes), handleResponse(getProfileRes)])
-  })
-}
+  .then(handleResponse)
