@@ -1,8 +1,8 @@
 import '../pages/index.css';
-import { createCard, deleteThisCard, cardLike, tempId } from './card.js';
+import { createCard, deleteThisCard, changeLike } from './card.js';
 import { openPopup, closePopup } from './modal.js';
 import { enableValidation, clearValidation } from './validation.js';
-import { getCards, getProfile, patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar } from './api.js'
+import { getCards, getProfile, patchProfile, addCard, deleteCardByID, changeProfileAvatar, toggleLike } from './api.js'
 
 const popupList = document.querySelectorAll('.popup');
 const popupContentList = document.querySelectorAll('.popup__content');
@@ -31,14 +31,19 @@ const errorPopupSubmit = errorPopup.querySelector(formElement);
 const editProfileForm = editProfilePopup.querySelector(formElement);
 const addCardForm = addCardPopup.querySelector(formElement);
 const changeAvatarForm = changeAvatarPopup.querySelector(formElement);
-const listOfFunctions = { zoomPicture, cardLike, likeById, deleteLikeById };
-const validationConfig = { 
+
+const listOfFunctions = { zoomPicture, deleteCard, handleLikes };
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
   submitButtonSelector: '.popup__button',
   inactiveButtonClass: 'popup__button_disabled',
-  errorClass: '.popup__error_visible'
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
 }
 
-popupList.forEach(i => i.classList.add('popup_is-animated'))
+
+popupList.forEach(popup => popup.classList.add('popup_is-animated'))
 
 avatar.addEventListener('click', () => {
   openPopup(changeAvatarPopup);
@@ -74,15 +79,14 @@ function handleEditFormSubmit(evt) {
     .finally(editProfileForm.querySelector('.popup__button').textContent = 'Сохранить')
 }
 
-editProfileForm.addEventListener('submit', (evt) => handleEditFormSubmit(evt));
+editProfileForm.addEventListener('submit', evt => handleEditFormSubmit(evt));
 
 function handleAddFormSubmit(evt) {
   evt.preventDefault();
   addCardForm.querySelector('.popup__button').textContent = 'Сохранение...';
   addCard(placeInputName, placeInputLink)
     .then((res) => {
-      placesList.insertBefore(createCard(res, listOfFunctions, 0, res.owner._id), placesList.firstChild)
-      placesList.querySelector('.card__delete-button').addEventListener('click', () => openPopup(deleteConfirmationPopup));
+      placesList.prepend(createCard(res, listOfFunctions, res.owner._id))
       closePopup(addCardPopup);
       placeInputName.value = '';
       placeInputLink.value = '';
@@ -93,12 +97,20 @@ function handleAddFormSubmit(evt) {
 
 addCardForm.addEventListener('submit', evt => handleAddFormSubmit(evt));
 
+let cardToDelete = null;
+
+function deleteCard (id, element) {
+  cardToDelete = {id, element};
+  openPopup(deleteConfirmationPopup);
+}
+
 deleteCardForm.addEventListener('submit', (evt) => {
     evt.preventDefault();
-    deleteCardByID(tempId)
+    deleteCardByID(cardToDelete.id)
       .then(() => {
-          deleteThisCard(document.getElementById(tempId));
+          deleteThisCard(cardToDelete.element);
           closePopup(deleteConfirmationPopup);
+          cardToDelete = {};
         })
       .catch(handleError)
 })
@@ -124,22 +136,21 @@ function zoomPicture(card) {
   popupCaption.textContent = card.alt;
 }
 
-popupContentList.forEach(i => i.addEventListener('click', evt => evt.stopPropagation()));
-popupList.forEach(i => i.querySelector('.popup__close').addEventListener('click', () => closePopup(i)))
+function handleLikes (id, obj, likeState) {
+  toggleLike(id, likeState) 
+    .then(res => changeLike(obj, res.likes.length)) 
+    .catch(handleError) 
+}
+
+popupContentList.forEach(popupContent => popupContent.addEventListener('click', evt => evt.stopPropagation()));
+popupList.forEach(popup => popup.querySelector('.popup__close').addEventListener('click', () => closePopup(popup)))
 
 errorPopupSubmit.addEventListener('submit', (evt) => {
   evt.preventDefault();
   closePopup(errorPopup);
 })
 
-enableValidation({
-  formSelector: '.popup__form',
-  inputSelector: '.popup__input',
-  submitButtonSelector: '.popup__button',
-  inactiveButtonClass: 'popup__button_disabled',
-  inputErrorClass: 'popup__input_type_error',
-  errorClass: 'popup__error_visible'
-});
+enableValidation(validationConfig);
 
 const handleError = (err) => {
   console.log(err)
@@ -149,9 +160,8 @@ const handleError = (err) => {
 
 Promise.all([getCards(), getProfile()])
   .then(([cardsRes, profileRes]) => {
-    cardsRes.forEach(card => placesList.append(createCard(card, listOfFunctions, card.likes.length, profileRes._id)));
+    cardsRes.forEach(card => placesList.append(createCard(card, listOfFunctions, profileRes._id)));
     defaultName.textContent = profileRes.name;
     defaultJob.textContent = profileRes.about;
     avatar.style.backgroundImage = `url(${profileRes.avatar})`})
-  .then(() => document.querySelectorAll('.card__delete-button').forEach(del => del.addEventListener('click', () => openPopup(deleteConfirmationPopup))))
   .catch(handleError)

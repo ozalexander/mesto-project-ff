@@ -56,8 +56,7 @@ const hideInputError = (formElement, inputElement, inputErrorClass, errorClass) 
   errorElement.classList.remove(errorClass)
 };
 
-const clearValidation = (form, { submitButtonSelector, inactiveButtonClass, errorClass }) => {
-  form.querySelectorAll(errorClass).forEach(err => err.textContent='');
-  form.querySelectorAll('input').forEach(input => input.classList.remove('popup__input_type_error'));
-  form.querySelector(submitButtonSelector).classList.add(inactiveButtonClass);
+const clearValidation = (formElement, { submitButtonSelector, inputSelector, inactiveButtonClass, inputErrorClass, errorClass }) => {
+  formElement.querySelectorAll(inputSelector).forEach(inputElement => hideInputError(formElement, inputElement, inputErrorClass, errorClass));
+  formElement.querySelector(submitButtonSelector).classList.add(inactiveButtonClass);
 };

@@ -1,4 +1,4 @@
-export { getCards, getProfile, patchProfile, addCard, deleteCardByID, likeById, deleteLikeById, changeProfileAvatar }
+export { getCards, getProfile, patchProfile, addCard, deleteCardByID, changeProfileAvatar, toggleLike }
 
 const config = {
   baseUrl: 'https://nomoreparties.co/v1/wff-cohort-15',
@@ -48,24 +48,16 @@ const addCard = (placeInputName, placeInputLink) => fetch(config.baseUrl+cardsUr
   .then(handleResponse)
 
 function deleteCardByID(cardId) {
-  return fetch(`${config.baseUrl}${cardsUrl}${cardId}`, {
+  return fetch(config.baseUrl+cardsUrl+cardId, {
     method:'DELETE',
     headers: config.headers,
   })
   .then(handleResponse)
 }
 
-function likeById(cardId) {
-  return fetch(`${config.baseUrl}${likesUrl}${cardId}`, {
-    method:'PUT',
-    headers: config.headers,
-  })
-  .then(res => handleResponse(res))
-}
-
-function deleteLikeById(cardId) {
-  return fetch(`${config.baseUrl}${likesUrl}${cardId}`, {
-    method:'DELETE',
+function toggleLike(cardId, status) {
+  return fetch(config.baseUrl+likesUrl+cardId, {
+    method: !status ? 'PUT' : 'DELETE',
     headers: config.headers,
   })
   .then(handleResponse)
