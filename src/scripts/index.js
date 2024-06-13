@@ -44,6 +44,7 @@ const validationConfig = {
 
 
 popupList.forEach(popup => popup.classList.add('popup_is-animated'))
+document.querySelectorAll('.popup__button').forEach(input => input.disabled = true)
 
 avatar.addEventListener('click', () => {
   openPopup(changeAvatarPopup);
